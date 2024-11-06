@@ -1,33 +1,52 @@
-def check_win(board, current_player, player_won, game_on, player1, player2):
-    n = len(board)  # Get the size of the board
-    win_length = 3  # Number of consecutive marks required to win
+def display_board(board):
+    board_size = len(board)
+    max_width = len(str(board_size * board_size))
 
+    board_str = ""
+    for row in range(board_size):
+        board_str += " | ".join(f"{cell:>{max_width}}" for cell in board[row]) + "\n"
+        if row < board_size - 1:
+            board_str += "-" * ((max_width + 3) * board_size - 3) + "\n"
+    print(board_str)
+
+
+def check_win(board, current_player, player_won, game_on, player1,location):
+    board_length = len(board)  # Get the size of the board
+    win_length = 3  # Number of consecutive marks required to win
+    f_row, f_col = location
     # checking current player mark
     if current_player == player1:
         mark = "X"
     else:
         mark = "0"
     # Check rows for a win
-    for row in range(n):
-        for col in range(n - win_length + 1):  # Ensure we have enough cells left to check
-            if all(board[row][col + k] == mark for k in range(win_length)):
-                print(f"{current_player} WON by completing a row!")
-                player_won += 1
-                game_on = False
-                return player_won, game_on
+    for col in range(board_length-win_length+1):
+        if all(board[f_row][col + k] == mark for k in range(win_length)):
+            display_board(board)
+            print(f"{current_player} WON by completing a row!")
+            player_won += 1
+            game_on = False
+            return player_won, game_on
 
     # Check columns for a win
-    for col in range(n):
-        for row in range(n - win_length + 1):  # Ensure we have enough cells left to check
-            if all(board[row + k][col] == mark for k in range(win_length)):
-                print(f"{current_player} WON by completing a column!")
-                player_won += 1
-                game_on = False
-                return player_won, game_on
+    for row in range(board_length-win_length+1):
+        if all(board[row + k][f_col] == mark for k in range(win_length)):
+            print(f"{current_player} WON by completing a column!")
+            player_won += 1
+            game_on = False
+            return player_won, game_on
 
     # Check main diagonals for a win
-    for row in range(n - win_length + 1):
-        for col in range(n - win_length + 1):
+    difference = f_col - f_row
+    if difference ==0:
+        starting_row, starting_col = 0, 0
+    elif difference > 0:
+        starting_row, starting_col = 0, abs(difference)
+    else:
+        starting_row, starting_col = abs(difference), 0
+
+    for row in range(starting_row, win_length):
+        for col in range(starting_col, win_length):
             if all(board[row + k][col + k] == mark for k in range(win_length)):
                 print(f"{current_player} WON by completing a diagonal!")
                 player_won += 1
@@ -35,8 +54,14 @@ def check_win(board, current_player, player_won, game_on, player1, player2):
                 return player_won, game_on
 
     # Check anti-diagonals for a win
-    for row in range(n - win_length + 1):
-        for col in range(win_length - 1, n):
+    total = f_col + f_row
+    if total <= 4:
+        s_row, s_col = 0, total
+    else:
+        s_row, s_col = (total-win_length-1), 4
+
+    for row in range(s_row, win_length):
+        for col in range(s_col, board_length):
             if all(board[row + k][col - k] == mark for k in range(win_length)):
                 print(f"{current_player} WON by completing an anti-diagonal!")
                 player_won += 1
@@ -57,16 +82,6 @@ def create_board(board_size):
     # Initialize the board with numbered positions
     return [[(i * board_size + j + 1) for j in range(board_size)] for i in range(board_size)]
 
-def display_board(board):
-    board_size = len(board)
-    max_width = len(str(board_size * board_size))
-
-    board_str = ""
-    for row in range(board_size):
-        board_str += " | ".join(f"{cell:>{max_width}}" for cell in board[row]) + "\n"
-        if row < board_size - 1:
-            board_str += "-" * ((max_width + 3) * board_size - 3) + "\n"
-    print(board_str)
 
 def play(player1_name, player2_name, player1_won, player2_won, switch_player,board_size):
     # validate board size input
@@ -102,10 +117,10 @@ def play(player1_name, player2_name, player1_won, player2_won, switch_player,boa
                         position[row][column] = 1
                         if current_player == player1_name:
                             board[row][column] = 'X'
-                            player1_won, game_on = check_win(board, current_player, player1_won, game_on,player1_name,player2_name)
+                            player1_won, game_on = check_win(board, current_player, player1_won, game_on,player1_name, location)
                         else:
                             board[row][column] = '0'
-                            player2_won, game_on = check_win(board, current_player, player1_won, game_on,player1_name,player2_name)
+                            player2_won, game_on = check_win(board, current_player, player2_won, game_on,player1_name, location)
                         turn_count += 1
                     else:
                         print("This position is already chosen.")
