@@ -44,7 +44,7 @@ def check_win(board, current_player, player_won, game_on, player1, location):
         element = board_length  # Getting the number of element in last diagonal
     elif difference > 0:
         starting_row, starting_col = 0, abs(difference)  # Setting starting row and column for left half
-        element = starting_col + 1
+        element = board_length - starting_col
     else:
         starting_row, starting_col = abs(difference), 0  # Setting starting row and column for right half
         element = board_length - starting_row
