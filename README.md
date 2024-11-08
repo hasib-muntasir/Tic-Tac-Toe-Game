@@ -6,6 +6,7 @@ This is a Python-based implementation of Tic-Tac-Toe that allows players to play
 ## Features
 
 - **Customizable Board Size**: Players can select the board size at the beginning of the game.
+- **Search Option**:It's search for a win check depending on last insert data position instead of whole array.********
 - **Win Detection**: The game detects a win when a player marks three consecutive cells in a row, column, or diagonal, regardless of board size.
 - **Score Tracking**: Scores are tracked across multiple rounds, and players can play as many rounds as they like.
 - **Tie Detection**: The game announces a tie if all cells are marked without any player winning.
