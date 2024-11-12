@@ -10,9 +10,8 @@ def display_board(board):
     print(board_str)
 
 
-def check_win(board, current_player, player_won, game_on, player1, location):
+def check_win(board, current_player, player_won, game_on, player1, location,win_length):
     board_length = len(board)  # Get the size of the board
-    win_length = 3  # Number of consecutive marks required to win
     f_row, f_col = location
     # checking current player mark
     if current_player == player1:
@@ -88,69 +87,79 @@ def create_board(board_size):
     return [[(i * board_size + j + 1) for j in range(board_size)] for i in range(board_size)]
 
 
-def play(player1_name, player2_name, player1_won, player2_won, switch_player, board_size):
+def play(player1_name, player2_name, player1_won, player2_won, switch_player, board_size, win_length):
     # validate board size input
-    try:
-        board_size = int(board_size)
-        board = create_board(board_size)
-        position = [[0 for _ in range(board_size)] for _ in range(board_size)]  # Track positions
 
-        turn_count = 0
-        game_on = True
+    board = create_board(board_size)
+    position = [[0 for _ in range(board_size)] for _ in range(board_size)]  # Track positions
 
-        while game_on:
-            if turn_count == board_size * board_size:
-                print("It's a Tie!")
-                break
+    turn_count = 0
+    game_on = True
 
-            # Display the current board
-            display_board(board)
+    while game_on:
+        if turn_count == board_size * board_size:
+            print("It's a Tie!")
+            break
 
-            # Determine current player
-            current_player = player1_name if (turn_count % 2 == 0) ^ (switch_player % 2 != 0) else player2_name
+        # Display the current board
+        display_board(board)
 
-            user_choice = input(f"Please choose a position, {current_player}: ")
+        # Determine current player
+        current_player = player1_name if (turn_count % 2 == 0) ^ (switch_player % 2 != 0) else player2_name
 
-            # Validate input
-            try:
-                user_choice = int(user_choice)
-                location = find_location(board, user_choice)
-                if location:
-                    row, column = location
-                    if position[row][column] == 0:
-                        # Mark the board and track player positions
-                        position[row][column] = 1
-                        if current_player == player1_name:
-                            board[row][column] = 'X'
-                            player1_won, game_on = check_win(board, current_player, player1_won, game_on, player1_name,
-                                                             location)
-                        else:
-                            board[row][column] = '0'
-                            player2_won, game_on = check_win(board, current_player, player2_won, game_on, player1_name,
-                                                             location)
-                        turn_count += 1
+        user_choice = input(f"Please choose a position, {current_player}: ")
+
+        # Validate input
+        try:
+            user_choice = int(user_choice)
+            location = find_location(board, user_choice)
+            if location:
+                row, column = location
+                if position[row][column] == 0:
+                    # Mark the board and track player positions
+                    position[row][column] = 1
+                    if current_player == player1_name:
+                        board[row][column] = 'X'
+                        player1_won, game_on = check_win(board, current_player, player1_won, game_on,
+                                                         player1_name,
+                                                         location, win_length)
                     else:
-                        print("This position is already chosen.")
+                        board[row][column] = '0'
+                        player2_won, game_on = check_win(board, current_player, player2_won, game_on,
+                                                         player1_name,
+                                                         location, win_length)
+                    turn_count += 1
                 else:
-                    print("You inserted an invalid position.")
-            except ValueError:
-                print("You inserted an invalid input.")
+                    print("This position is already chosen.")
+            else:
+                print("You inserted an invalid position.")
+        except ValueError:
+            print("You inserted an invalid input.")
 
-        return player1_won, player2_won  # Return updated scores
-    except ValueError:
-        print("Please choose a numeric value")
+    return player1_won, player2_won  # Return updated scores
 
 
 def main():
     player_1 = input("Please input player 1 name: ")
     player_2 = input("Please input player 2 name: ")
-    board_size = input("Please choose your board size: ")
+    while True:
+        board_size = input("Please choose your board size: ")
+        win_length = input("Please choose you win length 3/4/5: ")  # Number of consecutive marks required to win
+        try:
+            board_size = int(board_size)
+            win_length = int(win_length)
+            if win_length <= board_size:
+                break
+            else:
+                print("Opps.Your win length is greater than your board size.Try again........")
+        except ValueError:
+            print("Please choose a numeric value")
     player1_won = 0
     player2_won = 0
     switch_starting_player = 0
     while True:
         player1_won, player2_won = play(player_1, player_2, player1_won, player2_won, switch_starting_player,
-                                        board_size)
+                                        board_size, win_length)
         to_continue = input("Do you want to continue Y/N: ").lower()
         if to_continue == "n":
             # Announce the winner or if it's a tie
